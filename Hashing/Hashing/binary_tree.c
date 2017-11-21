@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include "binary_tree.h"
 
+int escapeCount = 0;
+
+Node* findMinimum(Node* this_node)
+{
+	Node* cursor = this_node;
+
+	while (cursor->left != NULL)
+	{
+		cursor = cursor->left;
+	}
+
+	return cursor;
+}
+
 void removeNode(Node** head, char* key)
 {
 	printf("\n Remove %s", key);
@@ -17,14 +31,15 @@ void removeNode(Node** head, char* key)
 		return;
 	}
 
-	while (thisCursor)
+	while (thisCursor && escapeCount < 20)
 	{
+		escapeCount++;
 		//printf("\n Cursor at %p and prev %p", thisCursor, parentCursor);
 
 		if (thisCursor->hash == keyHash)
 		{
 			printf("\n Found");
-			if (parentCursor->left->hash == thisCursor->hash)
+			if (parentCursor->left != NULL && parentCursor->left->hash == thisCursor->hash)
 			{
 				amRight = 0;
 			}
@@ -39,46 +54,56 @@ void removeNode(Node** head, char* key)
 				if (amRight == 0)
 				{
 					parentCursor->left = NULL;
-					printf("\n Removing parents left");
 				}
 				else
 				{
 					parentCursor->right = NULL;
-					printf("\n Removing parents right");
 				}
 			}			
 			else if (thisCursor->right != NULL && thisCursor->left != NULL) // 2 children
 			{
 				if (amRight == 0)
 				{
-					parentCursor->left = thisCursor->left;
+					parentCursor->left = thisCursor->right;
+					parentCursor->left->left = findMinimum(thisCursor->left);
+					return;
 				}
 				else
 				{
 					parentCursor->right = thisCursor->right;
-				}
+					parentCursor->right->left = findMinimum(thisCursor->left);
+					return;
+				}	
 			}
 			else //1 child
 			{
 				if (amRight == 0)
 				{
-					parentCursor->left = thisCursor->left;
+					if (thisCursor->left != NULL)
+					{
+						parentCursor->left = thisCursor->left;
+						return;
+					}
+					else
+					{
+						parentCursor->left = thisCursor->right;
+						return;
+					}
 				}
 				else
 				{
-					parentCursor->right = thisCursor->right;
+					if (thisCursor->left != NULL)
+					{
+						parentCursor->right = thisCursor->left;
+						return;
+					}
+					else
+					{
+						parentCursor->right = thisCursor->right;
+						return;
+					}				
 				}
 			}			
-			//if (thisCursor->right != NULL)
-			//{
-			//	printf("\n at right");
-			//	parentCursor->right = thisCursor->right;
-			//}
-			//if (thisCursor->left != NULL)
-			//{
-			//	printf("\n at left");
-			//	parentCursor->right->left = thisCursor->left;
-			//}
 			return;
 		}
 		else if (thisCursor->hash > keyHash)

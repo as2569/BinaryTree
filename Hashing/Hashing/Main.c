@@ -34,7 +34,7 @@ int main()
 
 	printCursor(Head);
 
-	removeNode(&Head, word10);
+	removeNode(&Head, word4);
 
 	printCursor(Head);
 
